@@ -1,0 +1,5 @@
+protein
+fat
+sodium
+potassium
+carbohydrate
