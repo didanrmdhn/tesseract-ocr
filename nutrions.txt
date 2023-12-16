@@ -7,3 +7,4 @@ calorie
 cholesterol
 sugar
 calcium
+serving size
