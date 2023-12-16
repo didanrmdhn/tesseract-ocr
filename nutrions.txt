@@ -3,3 +3,7 @@ fat
 sodium
 potassium
 carbohydrate
+calorie
+cholesterol
+sugar
+calcium

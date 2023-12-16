@@ -1,6 +1,5 @@
 import pytesseract
 import cv2
-import pytesseract
 import numpy as np
 
 NUTRION_KEY_FILE = "nutrions.txt"
@@ -16,8 +15,8 @@ def process_ocr(image: np.array) -> dict:
     img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # perform OCR on the image
-    extracted_text: str = pytesseract.image_to_string(image=img_gray)
-    
+    extracted_text: str = pytesseract.image_to_string(image=img_gray, config="--psm 6 --oem 1")
+
     # split the text by lines
     nutrion_lines: list[str] = extracted_text.split("\n")
 
@@ -28,10 +27,33 @@ def process_ocr(image: np.array) -> dict:
     nutrition_data = {}
 
     for nk_key in nutrition_key:
-        key_finded = [nl.lower() for nl in nutrion_lines if nk_key in nl.lower()]
+        key_finded = [nl.lower() for nl in nutrion_lines if 
+                      (nk_key in nl.lower())
+                      ]
 
         if(len(key_finded) > 0):
-            nutrion_contained = key_finded[0].split(nk_key)[-1].strip()
-            nutrition_data[nk_key] = nutrion_contained
-    
+            for nt in key_finded:
+                existed_key = list(nutrition_data.keys())
+                splited_nt = nt.split(" ")
+
+                if "total" in nt or "saturate" in nt:
+                    contain_key = " ".join(splited_nt[:2])
+                    contain_value = " ".join(splited_nt[2:])
+
+                    if contain_key not in existed_key:
+                        nutrition_data[contain_key] = contain_value
+                    
+                elif "from" in nt:
+                    contain_key = " ".join(splited_nt[:3])
+                    contain_value = " ".join(splited_nt[3:])
+
+                    if contain_key not in existed_key:
+                        nutrition_data[contain_key] = contain_value
+                elif nt.startswith(nk_key):
+                    contain_key = splited_nt[:1][0]
+                    contain_value = " ".join(splited_nt[1:])
+                    
+                    if contain_key not in existed_key:
+                        nutrition_data[contain_key] = contain_value
+
     return nutrition_data
