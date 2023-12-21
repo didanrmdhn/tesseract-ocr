@@ -10,12 +10,22 @@ def get_nutrion_key() -> list[str]:
     
     return nutrition_key
 
-def process_ocr(image: np.array) -> dict:
-    # convert image to grayscale
+def preprocess_image(image: np.array) -> np.array:
+    # Convert image to grayscale
     img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    
+    # Apply thresholding or other preprocessing techniques as needed
+    # Example: thresholding
+    _, threshold_img = cv2.threshold(img_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    
+    return threshold_img
+
+def process_ocr(image: np.array) -> dict:
+    # Preprocess image
+    processed_img = preprocess_image(image)
 
     # perform OCR on the image
-    extracted_text: str = pytesseract.image_to_string(image=img_gray, config="--psm 6 --oem 1")
+    extracted_text: str = pytesseract.image_to_string(image=processed_img, config="--psm 6 --oem 1")
 
     # split the text by lines
     nutrion_lines: list[str] = extracted_text.split("\n")
